@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Missing Patients — All Patients</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:#F4F6F8;color:#1a1a1a;}
+  .app{display:grid;grid-template-columns:210px 1fr;height:100vh;}
+
+  .sidebar{background:#fff;border-right:1px solid #E8EAED;padding:20px 12px;display:flex;flex-direction:column;gap:2px;}
+  .logo-area{display:flex;align-items:center;gap:9px;margin-bottom:18px;}
+  .logo-mark{width:26px;height:26px;background:#1D9E75;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .logo-text{font-size:14px;font-weight:600;color:#111;letter-spacing:-0.02em;line-height:1.1;}
+  .logo-sub{font-size:9px;color:#9CA3AF;}
+  .user-row{display:flex;align-items:center;gap:8px;margin-bottom:16px;padding:0 2px;}
+  .avatar{width:32px;height:32px;border-radius:50%;background:#D1FAE5;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#065F46;}
+  .gear{width:28px;height:28px;border-radius:6px;border:1px solid #E8EAED;display:flex;align-items:center;justify-content:center;}
+  .search-bar{display:flex;align-items:center;gap:7px;padding:8px 10px;border-radius:7px;border:1px solid #E8EAED;background:#F9FAFB;font-size:12px;color:#9CA3AF;margin-bottom:16px;}
+  .sidebar-divider{height:1px;background:#F3F4F6;margin:8px 2px;}
+  .nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:7px;font-size:13px;color:#4B5563;cursor:pointer;margin-bottom:1px;}
+  .nav-item.active{background:#F0FBF7;color:#0F6E56;font-weight:500;}
+  .nav-item svg{flex-shrink:0;}
+  .nav-badge{margin-left:auto;font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600;font-family:'DM Mono',monospace;}
+  .badge-red{background:#FEE2E2;color:#991B1B;}
+  .badge-teal{background:#CCFBF1;color:#0F766E;}
+  .sidebar-bottom{margin-top:auto;padding-top:16px;border-top:1px solid #F3F4F6;display:flex;flex-direction:column;gap:1px;}
+
+  .main{padding:32px 28px;overflow-y:auto;display:flex;flex-direction:column;gap:16px;}
+  .page-title{font-size:26px;font-weight:600;color:#111;letter-spacing:-0.03em;}
+
+  .top-search{display:flex;align-items:center;gap:8px;padding:9px 14px;border-radius:7px;border:1px solid #E5E7EB;background:#fff;font-size:13px;color:#9CA3AF;width:340px;}
+
+  .table-card{background:#fff;border-radius:10px;border:1px solid #E8EAED;overflow:hidden;}
+  .table-meta{padding:11px 18px;border-bottom:1px solid #F3F4F6;display:flex;align-items:center;justify-content:space-between;}
+  .table-meta-txt{font-size:12px;color:#6B7280;}
+  .table-meta-txt strong{color:#111;font-weight:500;}
+
+  table{width:100%;border-collapse:collapse;}
+  thead tr{background:#F9FAFB;}
+  th{padding:10px 16px;font-size:11px;font-weight:500;color:#6B7280;text-align:left;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid #F3F4F6;white-space:nowrap;}
+  th:first-child{width:36px;padding-right:0;}
+  td{padding:12px 16px;font-size:13px;color:#374151;border-bottom:1px solid #F9FAFB;vertical-align:middle;}
+  td:first-child{width:36px;padding-right:0;}
+  tr:last-child td{border-bottom:none;}
+  tr:hover td{background:#FAFFFE;}
+
+  .checkbox{width:16px;height:16px;border:1.5px solid #D1D5DB;border-radius:4px;background:#fff;flex-shrink:0;}
+  .patient-cell{display:flex;align-items:center;gap:10px;}
+  .p-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;}
+  .p-av-teal{background:#F0FBF7;color:#0F6E56;}
+  .p-av-blue{background:#EFF6FF;color:#1D4ED8;}
+  .p-av-amber{background:#FFFBEB;color:#92400E;}
+  .p-av-red{background:#FFF5F5;color:#991B1B;}
+  .p-av-purple{background:#F5F3FF;color:#6D28D9;}
+  .p-name{font-size:13px;font-weight:500;color:#111;}
+  .p-id{font-size:10px;color:#9CA3AF;font-family:'DM Mono',monospace;margin-top:1px;}
+
+  .days-num{font-family:'DM Mono',monospace;font-weight:500;}
+  .days-num.red{color:#B91C1C;}
+  .days-num.amber{color:#B45309;}
+  .days-num.blue{color:#1D4ED8;}
+  .days-num.gray{color:#6B7280;}
+  .days-num.green{color:#059669;}
+
+  .urgency-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;white-space:nowrap;}
+  .u-critical{background:#FEE2E2;color:#991B1B;}
+  .u-high{background:#FEF3C7;color:#92400E;}
+  .u-medium{background:#DBEAFE;color:#1E40AF;}
+  .u-low{background:#D1FAE5;color:#065F46;}
+  .u-ontrack{background:#F3F4F6;color:#374151;}
+
+  .status-chip{display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:3px 9px;border-radius:20px;}
+  .s-pending{background:#FEF3C7;color:#92400E;}
+  .s-contacted{background:#D1FAE5;color:#065F46;}
+  .s-ontrack{background:#F3F4F6;color:#374151;}
+
+  .action-btn{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:5px 11px;border-radius:5px;border:1px solid #E5E7EB;background:#fff;color:#374151;cursor:pointer;font-weight:500;}
+  .action-btn.teal{background:#F0FBF7;border-color:#A7F3D0;color:#065F46;}
+  .action-btn.done{background:#F3F4F6;border-color:#E5E7EB;color:#9CA3AF;}
+  .more-btn{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:5px;color:#9CA3AF;cursor:pointer;font-size:16px;letter-spacing:1px;}
+
+  .pagination{display:flex;align-items:center;justify-content:center;gap:4px;padding:16px 0 4px;}
+  .page-btn{width:34px;height:34px;border-radius:7px;border:1px solid #E5E7EB;background:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;color:#374151;cursor:pointer;}
+  .page-btn.active{background:#1D9E75;color:#fff;border-color:#1D9E75;font-weight:500;}
+  .page-btn.text{width:auto;padding:0 12px;font-size:13px;color:#6B7280;}
+  .page-dots{font-size:13px;color:#9CA3AF;padding:0 2px;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="logo-area">
+      <div class="logo-mark">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <circle cx="7" cy="5" r="3" stroke="white" stroke-width="1.5"/>
+          <path d="M1.5 14c0-3 2.46-5.5 5.5-5.5S12.5 11 12.5 14" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="logo-text">Missing Patients</div>
+        <div class="logo-sub">by RPI</div>
+      </div>
+    </div>
+
+    <div class="user-row">
+      <div class="avatar">LC</div>
+      <div class="gear">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 8.5a2 2 0 100-4 2 2 0 000 4z" stroke="#6B7280" stroke-width="1.2"/><path d="M6.5 1v1.5M6.5 10.5V12M1 6.5h1.5M10.5 6.5H12M2.64 2.64l1.06 1.06M9.3 9.3l1.06 1.06M2.64 10.36l1.06-1.06M9.3 3.7l1.06-1.06" stroke="#6B7280" stroke-width="1.2" stroke-linecap="round"/></svg>
+      </div>
+    </div>
+
+    <div class="search-bar">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="5.5" cy="5.5" r="4" stroke="#9CA3AF" stroke-width="1.2"/><path d="M9 9l2.5 2.5" stroke="#9CA3AF" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Search for...
+    </div>
+
+    <div class="nav-item">
+      <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><rect x="1" y="1" width="5.5" height="5.5" rx="1.2" stroke="#6B7280" stroke-width="1.4"/><rect x="8.5" y="1" width="5.5" height="5.5" rx="1.2" stroke="#6B7280" stroke-width="1.4"/><rect x="1" y="8.5" width="5.5" height="5.5" rx="1.2" stroke="#6B7280" stroke-width="1.4"/><rect x="8.5" y="8.5" width="5.5" height="5.5" rx="1.2" stroke="#6B7280" stroke-width="1.4"/></svg>
+      Dashboard
+    </div>
+    <div class="nav-item">
+      <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M7.5 1.5a4.5 4.5 0 014.5 4.5c0 2.5-1 4-2.5 5.5H5.5C4 11 3 9.5 3 6a4.5 4.5 0 014.5-4.5z" stroke="#6B7280" stroke-width="1.4"/><path d="M5.5 11.5v1a2 2 0 004 0v-1" stroke="#6B7280" stroke-width="1.4"/></svg>
+      Patient alerts
+      <span class="nav-badge badge-red">99+</span>
+    </div>
+    <div class="nav-item active">
+      <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="5" r="3" stroke="#0F6E56" stroke-width="1.4"/><path d="M2 14c0-3.04 2.46-5.5 5.5-5.5S13 10.96 13 14" stroke="#0F6E56" stroke-width="1.4" stroke-linecap="round"/></svg>
+      All patients
+    </div>
+    <div class="nav-item">
+      <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="6" stroke="#6B7280" stroke-width="1.4"/><path d="M4.5 7.5l2 2 4-4" stroke="#6B7280" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Contacted
+      <span class="nav-badge badge-teal">31</span>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="nav-item">
+      <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M7.5 2L13.5 13H1.5L7.5 2z" stroke="#DC2626" stroke-width="1.4" stroke-linejoin="round"/><path d="M7.5 6v3" stroke="#DC2626" stroke-width="1.4" stroke-linecap="round"/><circle cx="7.5" cy="11" r=".7" fill="#DC2626"/></svg>
+      <span style="color:#DC2626;font-weight:500;">Critical</span>
+    </div>
+    <div class="nav-item">
+      <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M7.5 3v9M4 6.5L7.5 3 11 6.5" stroke="#D97706" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span style="color:#D97706;font-weight:500;">High Priority</span>
+    </div>
+    <div class="nav-item">
+      <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M3 7.5h9" stroke="#CA8A04" stroke-width="1.4" stroke-linecap="round"/></svg>
+      <span style="color:#CA8A04;font-weight:500;">Overdue Well Visit</span>
+    </div>
+    <div class="nav-item">
+      <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="6" stroke="#059669" stroke-width="1.4"/><path d="M4.5 7.5l2 2 4-4" stroke="#059669" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span style="color:#059669;font-weight:500;">On Track</span>
+    </div>
+
+    <div class="sidebar-bottom">
+      <div class="nav-item">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M2.5 10.5v2a1 1 0 001 1h8a1 1 0 001-1v-2" stroke="#6B7280" stroke-width="1.4" stroke-linecap="round"/><path d="M7.5 2v7M4.5 6l3 3 3-3" stroke="#6B7280" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Upload CSV
+      </div>
+      <div class="nav-item">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M2.5 11.5v1a1 1 0 001 1h8a1 1 0 001-1v-1M7.5 2.5v7M4.5 6.5l3-3 3 3" stroke="#6B7280" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Export report
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="page-title">All Patients</div>
+
+    <div class="top-search">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4" stroke="#9CA3AF" stroke-width="1.3"/><path d="M10 10l2.5 2.5" stroke="#9CA3AF" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Search
+    </div>
+
+    <div class="table-card">
+      <div class="table-meta">
+        <div class="table-meta-txt"><strong>250 total patients</strong> · Clinic 1 — Main St</div>
+        <div style="font-size:11px;color:#9CA3AF;font-family:'DM Mono',monospace;">Page 2 of 25</div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th><div class="checkbox"></div></th>
+            <th>Patient</th>
+            <th>Age</th>
+            <th>Days Overdue</th>
+            <th>Last Well Visit</th>
+            <th>Urgency</th>
+            <th>Status</th>
+            <th>Action</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="checkbox"></div></td>
+            <td><div class="patient-cell"><div class="p-avatar p-av-red">NL</div><div><div class="p-name">Nathan Lee</div><div class="p-id">PT-0183</div></div></div></td>
+            <td>79</td>
+            <td><span class="days-num red">281 days</span></td>
+            <td style="color:#6B7280;font-size:12px;">Oct 4, 2024</td>
+            <td><span class="urgency-badge u-critical">● Critical</span></td>
+            <td><span class="status-chip s-pending">Pending</span></td>
+            <td><button class="action-btn teal">✦ AI script</button></td>
+            <td><div class="more-btn">···</div></td>
+          </tr>
+          <tr>
+            <td><div class="checkbox"></div></td>
+            <td><div class="patient-cell"><div class="p-avatar p-av-red">CK</div><div><div class="p-name">Christina King</div><div class="p-id">PT-0044</div></div></div></td>
+            <td>71</td>
+            <td><span class="days-num red">244 days</span></td>
+            <td style="color:#6B7280;font-size:12px;">Jun 21, 2024</td>
+            <td><span class="urgency-badge u-critical">● Critical</span></td>
+            <td><span class="status-chip s-pending">Pending</span></td>
+            <td><button class="action-btn teal">✦ AI script</button></td>
+            <td><div class="more-btn">···</div></td>
+          </tr>
+          <tr>
+            <td><div class="checkbox"></div></td>
+            <td><div class="patient-cell"><div class="p-avatar p-av-amber">RM</div><div><div class="p-name">Rosa Mendez</div><div class="p-id">PT-0092</div></div></div></td>
+            <td>54</td>
+            <td><span class="days-num amber">134 days</span></td>
+            <td style="color:#6B7280;font-size:12px;">Dec 15, 2024</td>
+            <td><span class="urgency-badge u-high">● High</span></td>
+            <td><span class="status-chip s-pending">Pending</span></td>
+            <td><button class="action-btn teal">✦ AI script</button></td>
+            <td><div class="more-btn">···</div></td>
+          </tr>
+          <tr>
+            <td><div class="checkbox"></div></td>
+            <td><div class="patient-cell"><div class="p-avatar p-av-amber">FA</div><div><div class="p-name">Fatima Al-Hassan</div><div class="p-id">PT-0217</div></div></div></td>
+            <td>38</td>
+            <td><span class="days-num amber">98 days</span></td>
+            <td style="color:#6B7280;font-size:12px;">Feb 3, 2025</td>
+            <td><span class="urgency-badge u-high">● High</span></td>
+            <td><span class="status-chip s-pending">Pending</span></td>
+            <td><button class="action-btn teal">✦ AI script</button></td>
+            <td><div class="more-btn">···</div></td>
+          </tr>
+          <tr>
+            <td><div class="checkbox"></div></td>
+            <td><div class="patient-cell"><div class="p-avatar p-av-teal">LC</div><div><div class="p-name">Liang Chen</div><div class="p-id">PT-0118</div></div></div></td>
+            <td>67</td>
+            <td><span class="days-num amber">86 days</span></td>
+            <td style="color:#6B7280;font-size:12px;">Mar 12, 2025</td>
+            <td><span class="urgency-badge u-high">● High</span></td>
+            <td><span class="status-chip s-contacted">✓ Contacted</span></td>
+            <td><button class="action-btn done">Contacted</button></td>
+            <td><div class="more-btn">···</div></td>
+          </tr>
+          <tr>
+            <td><div class="checkbox"></div></td>
+            <td><div class="patient-cell"><div class="p-avatar p-av-blue">MT</div><div><div class="p-name">Marcus Thompson</div><div class="p-id">PT-0061</div></div></div></td>
+            <td>45</td>
+            <td><span class="days-num blue">62 days</span></td>
+            <td style="color:#6B7280;font-size:12px;">Apr 19, 2025</td>
+            <td><span class="urgency-badge u-medium">● Medium</span></td>
+            <td><span class="status-chip s-pending">Pending</span></td>
+            <td><button class="action-btn teal">✦ AI script</button></td>
+            <td><div class="more-btn">···</div></td>
+          </tr>
+          <tr>
+            <td><div class="checkbox"></div></td>
+            <td><div class="patient-cell"><div class="p-avatar p-av-blue">AR</div><div><div class="p-name">Angela Rivera</div><div class="p-id">PT-0155</div></div></div></td>
+            <td>29</td>
+            <td><span class="days-num blue">44 days</span></td>
+            <td style="color:#6B7280;font-size:12px;">May 7, 2025</td>
+            <td><span class="urgency-badge u-medium">● Medium</span></td>
+            <td><span class="status-chip s-pending">Pending</span></td>
+            <td><button class="action-btn teal">✦ AI script</button></td>
+            <td><div class="more-btn">···</div></td>
+          </tr>
+          <tr>
+            <td><div class="checkbox"></div></td>
+            <td><div class="patient-cell"><div class="p-avatar p-av-teal">JO</div><div><div class="p-name">James Okafor</div><div class="p-id">PT-0077</div></div></div></td>
+            <td>52</td>
+            <td><span class="days-num blue">38 days</span></td>
+            <td style="color:#6B7280;font-size:12px;">May 20, 2025</td>
+            <td><span class="urgency-badge u-low">● Low</span></td>
+            <td><span class="status-chip s-contacted">✓ Contacted</span></td>
+            <td><button class="action-btn done">Contacted</button></td>
+            <td><div class="more-btn">···</div></td>
+          </tr>
+          <tr>
+            <td><div class="checkbox"></div></td>
+            <td><div class="patient-cell"><div class="p-avatar p-av-purple">SP</div><div><div class="p-name">Sara Patel</div><div class="p-id">PT-0203</div></div></div></td>
+            <td>34</td>
+            <td><span class="days-num gray">14 days</span></td>
+            <td style="color:#6B7280;font-size:12px;">Jun 18, 2025</td>
+            <td><span class="urgency-badge u-low">● Low</span></td>
+            <td><span class="status-chip s-pending">Pending</span></td>
+            <td><button class="action-btn teal">✦ AI script</button></td>
+            <td><div class="more-btn">···</div></td>
+          </tr>
+          <tr>
+            <td><div class="checkbox"></div></td>
+            <td><div class="patient-cell"><div class="p-avatar p-av-teal">DW</div><div><div class="p-name">Diane Williams</div><div class="p-id">PT-0031</div></div></div></td>
+            <td>62</td>
+            <td><span class="days-num green">On track</span></td>
+            <td style="color:#6B7280;font-size:12px;">Jul 2, 2025</td>
+            <td><span class="urgency-badge u-ontrack">● On track</span></td>
+            <td><span class="status-chip s-ontrack">—</span></td>
+            <td><button class="action-btn" style="color:#9CA3AF;">View</button></td>
+            <td><div class="more-btn">···</div></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="pagination">
+        <div class="page-btn text">‹ Previous</div>
+        <div class="page-btn">1</div>
+        <div class="page-btn active">2</div>
+        <div class="page-btn">3</div>
+        <div class="page-btn">4</div>
+        <div class="page-btn">5</div>
+        <div class="page-dots">···</div>
+        <div class="page-btn">11</div>
+        <div class="page-btn text">Next ›</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
