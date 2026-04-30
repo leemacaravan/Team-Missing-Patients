@@ -87,11 +87,33 @@ npm run dev
 
 ---
 
+## Contributors
+
+| Name | Role |
+|------|------|
+| Leema Caravan | Project Lead & Full-Stack Development |
+| Alex Litchfield | Full-Stack Development |
+| Joydip Paul | Full-Stack Development |
+| Ryan Tedaldi | Full-Stack Development |
+| Sirajam Munira | Full-Stack Development |
+
+---
+
+## Mentor & Faculty
+
+**Dr. Thilanka Munasinghe**  
+Faculty Mentor — Xinformatics, Health Informatics  
+Lally School of Management, Rensselaer Polytechnic Institute
+
+---
+
 ## Acknowledgements
 
-Built during the **Lally AI Academy 30-Day Sprint** — a rapid product development program at the Lally School of Management, Rensselaer Polytechnic Institute, under the mentorship of **Dr. Thilanka Munasinghe**.
+Missing Patients was built during the **Lally AI Academy 30-Day Sprint** at the **Lally School of Management, Rensselaer Polytechnic Institute**.
 
-The sprint challenges teams to conceive, build, and deploy a production-ready AI product in 30 days. Missing Patients was built in response to a real gap in clinical outreach infrastructure affecting underserved communities across the United States.
+The Lally AI Academy Sprint challenges student teams to conceive, design, and ship a production-ready AI product in 30 days — from idea to live deployment. Teams are assessed on innovation, execution quality, production readiness, resource efficiency, and presentation.
+
+This product was built in response to a real and urgent gap in clinical outreach infrastructure affecting millions of underserved patients across the United States — and dedicated to the immigrant physicians and clinic staff who serve them every day.
 
 ---
 
